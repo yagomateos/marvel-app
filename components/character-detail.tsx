@@ -32,12 +32,13 @@ export default async function CharacterDetail({ id }: { id: string }) {
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="relative h-96 md:h-full rounded-lg overflow-hidden">
+        <div className="relative bg-gray-900 rounded-lg overflow-hidden flex items-center justify-center min-h-[400px]">
           <Image
             src={imageUrl || "/placeholder.svg"}
             alt={character.name}
-            fill
-            className="object-cover"
+            width={350}
+            height={450}
+            className="object-contain max-h-[450px]"
             priority
             onError={(e) => {
               // Fallback for image errors
@@ -69,4 +70,3 @@ export default async function CharacterDetail({ id }: { id: string }) {
     notFound()
   }
 }
-

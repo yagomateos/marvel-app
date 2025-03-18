@@ -39,17 +39,19 @@ export default async function HomePage({
               <Link 
                 href={`/character/${character.id}`} 
                 key={character.id}
-                className="bg-gray-800 rounded-lg overflow-hidden hover:bg-gray-700 transition-colors"
+                className="bg-gray-800 rounded-lg overflow-hidden hover:bg-gray-700 transition-colors flex flex-col h-full"
               >
-                <div className="relative h-64 w-full">
+                <div className="relative h-64 w-full bg-gray-900 flex items-center justify-center">
                   <Image
                     src={character.image}
                     alt={character.name}
-                    fill
-                    className="object-cover"
+                    width={200}
+                    height={200}
+                    className="object-contain max-h-64"
+                    style={{ objectPosition: 'center' }}
                   />
                 </div>
-                <div className="p-4">
+                <div className="p-4 flex-grow">
                   <h2 className="text-xl font-semibold">{character.name}</h2>
                   <p className="text-gray-400">{character.race}</p>
                 </div>
