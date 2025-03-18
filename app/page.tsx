@@ -1,60 +1,63 @@
-import { Suspense } from "react"
-import CharacterList from "@/components/character-list"
-import SearchBar from "@/components/search-bar"
-import { Navbar } from "@/components/navbar"
-import { ErrorBoundary, ErrorFallback } from "@/components/error-boundary"
-import ResultsCount from "@/components/results-count"
+import { Suspense } from "react";
+import { Navbar } from "@/components/navbar";
+import { getCharacters } from "@/lib/dragonball-api";
+import Link from "next/link";
+import Image from "next/image";
+import { ErrorBoundary, ErrorFallback } from "@/components/error-boundary";
 
-export default function Home({
+export default async function HomePage({
   searchParams,
 }: {
   searchParams: { query?: string; favorites?: string }
 }) {
-  const query = searchParams.query || ""
-  const showFavorites = searchParams.favorites === "true"
+  // Corregir el uso de searchParams con el operador opcional
+  const query = searchParams?.query || "";
+  const showFavorites = searchParams?.favorites === "true";
 
+  const data = await getCharacters();
+  
+  // Filtrar personajes si hay una consulta
+  const filteredCharacters = query 
+    ? data.items.filter(character => 
+        character.name.toLowerCase().includes(query.toLowerCase())
+      )
+    : data.items;
+  
   return (
     <main className="min-h-screen bg-black text-white">
       <Navbar />
       <div className="container mx-auto px-4 py-6">
-        <SearchBar initialQuery={query} />
-
+        <h1 className="text-3xl font-bold mb-6">Dragon Ball Characters</h1>
+        
         <ErrorBoundary
           fallback={
-            <div className="mt-8">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">{showFavorites ? "Favorite Characters" : "Characters"}</h2>
-              </div>
-              <ErrorFallback message="Failed to load characters. Please check your API configuration or try again later." />
-            </div>
+            <ErrorFallback message="Failed to load characters. Please try again later." />
           }
         >
-          <Suspense
-            fallback={
-              <div className="mt-8">
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-bold">{showFavorites ? "Favorite Characters" : "Characters"}</h2>
-                  <p className="text-gray-400">Loading...</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredCharacters.map((character) => (
+              <Link 
+                href={`/character/${character.id}`} 
+                key={character.id}
+                className="bg-gray-800 rounded-lg overflow-hidden hover:bg-gray-700 transition-colors"
+              >
+                <div className="relative h-64 w-full">
+                  <Image
+                    src={character.image}
+                    alt={character.name}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {[...Array(8)].map((_, i) => (
-                    <div key={i} className="bg-gray-900 rounded-lg overflow-hidden animate-pulse">
-                      <div className="h-64 w-full bg-gray-800"></div>
-                      <div className="p-4">
-                        <div className="h-6 bg-gray-800 rounded w-3/4 mb-2"></div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="p-4">
+                  <h2 className="text-xl font-semibold">{character.name}</h2>
+                  <p className="text-gray-400">{character.race}</p>
                 </div>
-              </div>
-            }
-          >
-            <ResultsCount query={query} showFavorites={showFavorites} />
-            <CharacterList query={query} showFavorites={showFavorites} />
-          </Suspense>
+              </Link>
+            ))}
+          </div>
         </ErrorBoundary>
       </div>
     </main>
-  )
+  );
 }
-
